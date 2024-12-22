@@ -11,6 +11,7 @@ import { addUser, removeUser } from "../Utiles.js/UserSlice";
 
 const Body = () => {
   const dispatch = useDispatch();
+console.log("Hello Yuk")
   const appRouter = createBrowserRouter([
     {
       path: "/",
