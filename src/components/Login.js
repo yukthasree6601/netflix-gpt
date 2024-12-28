@@ -1,26 +1,32 @@
 import React, { useRef, useState } from "react";
-import Header from "./Header";
-import { CheckValidData } from "../Utiles.js/Validate";
+import Header from "./Header.js";
+import { CheckValidData } from "../Utiles.js/Validate.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { auth } from "../Utiles.js/Firebase.js";
 import { useNavigate } from "react-router-dom";
+import { updateProfile } from "firebase/auth";
+import { useDispatch } from "react-redux";
+import { addUser } from "../Utiles.js/UserSlice.js";
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [isSignForm, setIsSignForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState();
 
   const name = useRef(null);
   const email = useRef(null);
+
   const password = useRef(null);
 
   const HandleButtonClick = () => {
     const message = CheckValidData(email.current.value, password.current.value);
     setErrorMessage(message);
     if (message !== null) return "Done Validation";
+    
     if (!isSignForm) {
       // signup logic
       createUserWithEmailAndPassword(
@@ -29,10 +35,30 @@ const Login = () => {
         password.current.value
       )
         .then((userCredential) => {
-          // Signed up
           const user = userCredential.user;
           console.log(user);
-          navigate("/browse");
+
+          updateProfile(auth.currentUser, {
+            displayName: name.current.value,
+            photoURL:
+              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkcpcGcR2GAzOwVVBWn4QsCgz8Ief6lthdYA&s",
+          })
+            .then(() => {
+              const { uid, email, displayName, photoURL } = auth.currentUser;
+
+              dispatch(
+                addUser({
+                  uid: uid,
+                  email: email,
+                  displayName: displayName,
+                  photoURL: photoURL,
+                })
+              );
+            })
+            .catch((error) => {
+              setErrorMessage(errorMessage);
+            });
+
           // ...
         })
         .catch((error) => {

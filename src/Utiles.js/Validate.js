@@ -12,3 +12,6 @@ export const CheckValidData = (email, password) => {
   if (!isPasswordValid) return "Password is not Valid";
   return null;
 };
+
+
+console.log("object")
